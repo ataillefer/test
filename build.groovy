@@ -1,8 +1,13 @@
-def msteamsNotification(String channelId, String title, String  titleColor, String  message) {
+def msteamsNotification(Map args = [:]) {
+    def channelId = args.channelId
+    def title = args.title
+    def titleColor = args.titleColor ?: 'default'
+    def message = args.message
+
+
     def workflowUrl = params.WEBHOOK_URL // The URL from user provided as parameter
     def buildStatus = currentBuild.currentResult ?: "N/A"
     def imageUrl = "https://www.jenkins.io/images/logos/jenkins/jenkins.png"
-    titleColor = titleColor ?: 'default'
 
     if (buildStatus != 'SUCCESS') {
         imageUrl = "https://www.jenkins.io/images/logos/fire/fire.png"
@@ -132,26 +137,47 @@ pipeline {
                 echo 'Hello World'
                 script {
                     currentBuild.description = 'Build 2025.1.14'
+
+                    def o = ['records': [
+                        'car': [
+                            'name': 'HSV Maloo',
+                            'make': 'Holden',
+                            'year': 2006,
+                            'country': 'Australia',
+                        ]
+                    ]]
+                    def j = writeJSON(
+                        json: o,
+                        returnText: true,
+                        pretty: 4
+                    )
+                    echo j
                 }
             }
         }
     }
-    post {
-        success {
-            msteamsNotification(
-                '19:817f8655db3745389cb64b4f4db5cc18@thread.tacv2',
-                "nuxeo/nuxeo-lts #${BUILD_NUMBER}: Build success",
-                'good',
-                "Successfully built nuxeo-lts on branch ${GIT_BRANCH}"
-            )
-        }
-        unsuccessful {
-            msteamsNotification(
-                '19:817f8655db3745389cb64b4f4db5cc18@thread.tacv2',
-                "nuxeo/nuxeo-lts #${BUILD_NUMBER}: Build failure",
-                'attention',
-                "Failed to build nuxeo-lts on branch ${GIT_BRANCH}"
-            )
-        }
-    }
+    // post {
+    //     success {
+    //         msteamsNotification(
+    //             '19:817f8655db3745389cb64b4f4db5cc18@thread.tacv2',
+    //             "nuxeo/nuxeo-lts #${BUILD_NUMBER}: Build success",
+    //             'good',
+    //             "Successfully built nuxeo-lts on branch ${GIT_BRANCH}"
+    //         )
+    //         msteamsNotification(
+    //             '19:817f8655db3745389cb64b4f4db5cc18@thread.tacv2',
+    //             "Release LTS 2021.69",
+    //             'good',
+    //             "LTS 2021.69 and 2021-HF69 are released and online."
+    //         )
+    //     }
+    //     unsuccessful {
+    //         msteamsNotification(
+    //             '19:817f8655db3745389cb64b4f4db5cc18@thread.tacv2',
+    //             "nuxeo/nuxeo-lts #${BUILD_NUMBER}: Build failure",
+    //             'attention',
+    //             "Failed to build nuxeo-lts on branch ${GIT_BRANCH}"
+    //         )
+    //     }
+    // }
 }
