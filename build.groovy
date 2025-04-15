@@ -29,7 +29,7 @@ def send(Map args = [:]) {
             'columns': [
               [
                 'type': 'Column',
-                'spacing': 'none',
+                'spacing': 'small',
                 'items': [
                   [
                     'type': 'TextBlock',
@@ -81,7 +81,7 @@ def send(Map args = [:]) {
         'type': 'TextBlock',
         'text': message,
         'wrap': true,
-        'spacing': 'none'
+        'spacing': 'small'
       ])
     }
 
@@ -90,7 +90,7 @@ def send(Map args = [:]) {
         'type': 'TextBlock',
         'text': "**Changes:** ${changeset}",
         'wrap': true,
-        'spacing': 'none'
+        'spacing': 'small'
       ])
     }
 
@@ -107,7 +107,7 @@ def send(Map args = [:]) {
         'type': 'TextBlock',
         'text': "**Committers:** ${committers}",
         'wrap': true,
-        'spacing': 'none'
+        'spacing': 'small'
       ])
     }
 
