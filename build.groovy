@@ -69,7 +69,7 @@ def send(Map args = [:]) {
         'items': [[
           'type': 'Icon',
           'name': icon,
-          'size': 'small',
+          'size': 'xSmall',
           'style': 'filled',
           'color': iconColor
         ]]
