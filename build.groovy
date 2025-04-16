@@ -56,6 +56,7 @@ def send(Map args = [:]) {
         'text': description,
         'wrap': true,
         'isSubtle': true,
+        'size': 'small',
         'spacing': 'none'
       ]
       )
