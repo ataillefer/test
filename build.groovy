@@ -35,7 +35,6 @@ def send(Map args = [:]) {
                     'type': 'TextBlock',
                     'text': title,
                     'wrap': true,
-                    'size': 'medium',
                     'weight': 'bolder'
                   ]
                 ]
