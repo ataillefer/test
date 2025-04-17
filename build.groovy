@@ -35,6 +35,7 @@ def send(Map args = [:]) {
                     'type': 'TextBlock',
                     'text': title,
                     'wrap': true,
+                    'size': 'large',
                     'weight': 'bolder'
                   ]
                 ]
@@ -56,7 +57,6 @@ def send(Map args = [:]) {
         'text': description,
         'wrap': true,
         'isSubtle': true,
-        'size': 'small',
         'spacing': 'none'
       ]
       )
@@ -69,7 +69,7 @@ def send(Map args = [:]) {
         'items': [[
           'type': 'Icon',
           'name': icon,
-          'size': 'xSmall',
+          'size': 'small',
           'style': 'filled',
           'color': iconColor
         ]]
@@ -165,8 +165,7 @@ pipeline {
     }
   }
   post {
-    // success {
-    unsuccessful {
+    success {
       send(
         title: "nuxeo/nuxeo-lts #${BUILD_NUMBER}: Build success",
         description: currentBuild.description,
@@ -181,18 +180,6 @@ pipeline {
         icon: 'CheckmarkCircle',
         iconColor: 'good',
         message: "LTS 2021.69 and 2021-HF69 are released and online."
-      )
-    }
-    // unsuccessful {
-    success {
-      send(
-        title: "nuxeo/nuxeo-lts #${BUILD_NUMBER}: Build failure nuxeo/nuxeo-lts #${BUILD_NUMBER}: Build failure nuxeo/nuxeo-lts #${BUILD_NUMBER}: Build failure nuxeo/nuxeo-lts #${BUILD_NUMBER}: Build failure nuxeo/nuxeo-lts #${BUILD_NUMBER}: Build failure nuxeo/nuxeo-lts #${BUILD_NUMBER}: Build failure ",
-        description: currentBuild.description,
-        icon: 'ErrorCircle',
-        iconColor: 'attention',
-        message: "Failed to build nuxeo-lts on branch ${GIT_BRANCH}",
-        changeset: changeset,
-        committers: committers
       )
       send(
         title: "nuxeo/nuxeo-lts #${BUILD_NUMBER}: Build failure",
