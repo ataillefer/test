@@ -1,5 +1,7 @@
 library identifier: "platform-ci-shared-library@v0.0.53"
 
+def jiraUrl = nxJira.getServerBrowseURL()
+
 def getChange(commitMessage) {
   def parts = commitMessage.split(':', 2)
   if (parts.size() > 1) {
@@ -168,7 +170,6 @@ def send(Map args = [:]) {
     
 }
 
-def jiraUrl = nxJira.getServerBrowseURL()
 def changeset = []
 def committers = []
 
@@ -180,14 +181,13 @@ pipeline {
         echo 'Hello World'
         script {
           currentBuild.description = 'Build 2025.1.14'
-          sh 'env'
           for (changeLogSet in currentBuild.changeSets) {
             def repositoryBrowser = changeLogSet.getBrowser()
             for (item in changeLogSet.getItems()){
-              def changeSetLink = repositoryBrowser.getChangeSetLink(item)
-
-              changeset.add(getChange(item.getComment()))
-              committers.add(item.getAuthorName())
+              if (repositoryBrowser.getChangeSetLink(item).startsWith(GIT_URL)) {
+                changeset.add(getChange(item.getComment()))
+                committers.add(item.getAuthorName())
+              }
             }
           }
         }
