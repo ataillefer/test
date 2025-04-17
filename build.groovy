@@ -119,19 +119,21 @@ def send(Map args = [:]) {
 
     if (committers) {
       def entities = []
-      committers.each {
-        committer -> entities.add([
+      def atCommitters = []
+      committers.each { committer -> {
+        def atCommitter = "<at>${committer}</at>"
+        entities.add([
           'type': 'mention',
-          'text': "<at>${committer}</at>",
+          'text': atCommitter,
           'mentioned': [
             'id': getUserEmail(committer),
             'name': committer
           ]
         ])
-      }
+        atCommitters.add(atCommitter)
+      }}
       content['msTeams']['entities'] = entities
-
-      def text = committers.join(', ')
+      def text = atCommitters.join(', ')
       body.add([
         'type': 'TextBlock',
         'text': "**Committers:** ${text}",
