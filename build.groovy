@@ -150,6 +150,7 @@ def changeset = """
   - ...
 """.stripIndent()
 
+
 def committers = '<at>Antoine Taillefer</at>'
 
 pipeline {
@@ -160,6 +161,12 @@ pipeline {
         echo 'Hello World'
         script {
           currentBuild.description = 'Build 2025.1.14'
+
+          for (changeLogSet in currentBuild.changeSets) {
+            for (entry in changeLogSet.getItems()){
+              echo "entry = ${entry}"
+            }
+          }
         }
       }
     }
