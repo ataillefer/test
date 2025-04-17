@@ -161,7 +161,7 @@ pipeline {
         echo 'Hello World'
         script {
           currentBuild.description = 'Build 2025.1.14'
-
+          sh 'env'
           for (changeLogSet in currentBuild.changeSets) {
             def repositoryBrowser = changeLogSet.getBrowser()
             for (entry in changeLogSet.getItems()){
