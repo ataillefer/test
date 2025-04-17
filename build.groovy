@@ -167,7 +167,7 @@ pipeline {
   post {
     success {
       send(
-        title: "nuxeo/nuxeo-lts #${BUILD_NUMBER}: Build success",
+        title: "Build success: nuxeo/nuxeo-lts #${BUILD_NUMBER}",
         description: currentBuild.description,
         icon: 'CheckmarkCircle',
         iconColor: 'good',
@@ -175,14 +175,14 @@ pipeline {
         changeset: changeset,
         committers: committers
       )
+      // send(
+      //   title: "Release LTS 2021.69",
+      //   icon: 'CheckmarkCircle',
+      //   iconColor: 'good',
+      //   message: "LTS 2021.69 and 2021-HF69 are released and online."
+      // )
       send(
-        title: "Release LTS 2021.69",
-        icon: 'CheckmarkCircle',
-        iconColor: 'good',
-        message: "LTS 2021.69 and 2021-HF69 are released and online."
-      )
-      send(
-        title: "nuxeo/nuxeo-lts #${BUILD_NUMBER}: Build failure",
+        title: "Build failure: nuxeo/nuxeo-lts #${BUILD_NUMBER}",
         description: currentBuild.description,
         icon: 'ErrorCircle',
         iconColor: 'attention',
@@ -190,12 +190,12 @@ pipeline {
         changeset: changeset,
         committers: committers
       )
-      send(
-        title: "Release LTS 2021.60",
-        icon: 'ErrorCircle',
-        iconColor: 'attention',
-        message: "Failed to release Nuxeo 2021.60 from build 2021.60.7"
-      )
+      // send(
+      //   title: "Release LTS 2021.60",
+      //   icon: 'ErrorCircle',
+      //   iconColor: 'attention',
+      //   message: "Failed to release Nuxeo 2021.60 from build 2021.60.7"
+      // )
     }
   }
 }
