@@ -167,8 +167,14 @@ pipeline {
             for (entry in changeLogSet.getItems()){
               echo "changeSetLink = ${repositoryBrowser.getChangeSetLink(entry)}"
               echo "comment = ${entry.getComment()}"
-              echo "author = ${entry.getAuthor()}"
               echo "authorName = ${entry.getAuthorName()}"
+              echo "authorEmail = ${entry.getAuthorEmail()}"
+              def author = entry.getAuthor()
+              echo "author = ${author}"
+
+              echo "authorId = ${author.getId()}"
+              echo "authorDisplayName = ${author.getDisplayName()}"
+              echo "authorFullName = ${author.getFullName()}"
             }
           }
 
