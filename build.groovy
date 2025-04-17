@@ -1,13 +1,13 @@
 library identifier: "platform-ci-shared-library@v0.0.53"
 
-def jiraUrl = nxJira.getServerBrowseURL()
+JIRA_URL = nxJira.getServerBrowseURL()
 
 def getChange(commitMessage) {
   def parts = commitMessage.split(':', 2)
   if (parts.size() > 1) {
     def jiraIssue = parts[0]
     def message = parts[1]
-    return "[${jiraIssue}](${jiraUrl}${jiraIssue}): ${message}"
+    return "[${jiraIssue}](${JIRA_URL}${jiraIssue}): ${message}"
   } else {
     return commitMessage
   }
