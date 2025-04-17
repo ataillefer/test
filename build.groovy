@@ -165,7 +165,8 @@ pipeline {
     }
   }
   post {
-    success {
+    // success {
+    unsuccessful {
       send(
         title: "nuxeo/nuxeo-lts #${BUILD_NUMBER}: Build success",
         description: currentBuild.description,
@@ -182,7 +183,17 @@ pipeline {
         message: "LTS 2021.69 and 2021-HF69 are released and online."
       )
     }
-    unsuccessful {
+    // unsuccessful {
+    success {
+      send(
+        title: "nuxeo/nuxeo-lts #${BUILD_NUMBER}: Build failure nuxeo/nuxeo-lts #${BUILD_NUMBER}: Build failure nuxeo/nuxeo-lts #${BUILD_NUMBER}: Build failure nuxeo/nuxeo-lts #${BUILD_NUMBER}: Build failure nuxeo/nuxeo-lts #${BUILD_NUMBER}: Build failure nuxeo/nuxeo-lts #${BUILD_NUMBER}: Build failure ",
+        description: currentBuild.description,
+        icon: 'ErrorCircle',
+        iconColor: 'attention',
+        message: "Failed to build nuxeo-lts on branch ${GIT_BRANCH}",
+        changeset: changeset,
+        committers: committers
+      )
       send(
         title: "nuxeo/nuxeo-lts #${BUILD_NUMBER}: Build failure",
         description: currentBuild.description,
