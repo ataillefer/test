@@ -184,7 +184,7 @@ pipeline {
           for (changeLogSet in currentBuild.changeSets) {
             def repositoryBrowser = changeLogSet.getBrowser()
             for (item in changeLogSet.getItems()){
-              if (repositoryBrowser.getChangeSetLink(item).startsWith(GIT_URL)) {
+              if (repositoryBrowser.getChangeSetLink(item).startsWith(env.GIT_URL)) {
                 changeset.add(getChange(item.getComment()))
                 committers.add(item.getAuthorName())
               }
