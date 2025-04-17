@@ -1,5 +1,25 @@
 library identifier: "platform-ci-shared-library@v0.0.53"
 
+def getChange(commitMessage) {
+  def parts = commitMessage.split(':', 2)
+  if (parts.size() > 1) {
+    def jiraIssue = parts[0]
+    def message = parts[1]
+    return "[${jiraIssue}](${jiraUrl}${jiraIssue}): ${message}"
+  } else {
+    return commitMessage
+  }
+}
+
+def getUserEmail(fullName) {
+  def parts = fullName.split(' ', 2)
+  if (parts.size() <=1) {
+    // nxUtils.log(message: "Cannot get email for user full name: ${fullName}")
+    return null
+  }
+  return "${parts[0]}.${parts[1]}@hyland.com"
+}
+
 def send(Map args = [:]) {
     def channelId = args.channelId ?: '19:817f8655db3745389cb64b4f4db5cc18@thread.tacv2'
     def title = args.title // required
@@ -86,26 +106,33 @@ def send(Map args = [:]) {
     }
 
     if (changeset) {
+      def text = changeset.join('\\n- ')
       body.add([
         'type': 'TextBlock',
-        'text': "**Changes:** ${changeset}",
+        'text': "**Changes:** ${text}",
         'wrap': true,
         'spacing': 'small'
       ])
     }
 
     if (committers) {
-      content['msTeams']['entities'] = [[
-        'type': 'mention',
-        'text': '<at>Antoine Taillefer</at>',
-        'mentioned': [
-          'id': 'antoine.taillefer@hyland.com',
-          'name': 'Antoine Taillefer'
-        ]
-      ]]
+      def entities = []
+      committers.each(committer -> {
+        entities.add([
+          'type': 'mention',
+          'text': "<at>${committer}</at>",
+          'mentioned': [
+            'id': getUserEmail(committer),
+            'name': committer
+          ]
+        ])
+      })
+      content['msTeams']['entities'] = entities
+
+      def text = committers.join(', ')
       body.add([
         'type': 'TextBlock',
-        'text': "**Committers:** ${committers}",
+        'text': "**Committers:** ${text}",
         'wrap': true,
         'spacing': 'small'
       ])
@@ -141,17 +168,9 @@ def send(Map args = [:]) {
     
 }
 
-def changeset = """
-  - [NXBT-3821](https://hyland.atlassian.net/browse/NXBT-3821): Fix nxHelmfile.template
-  - [NXBT-3615](https://hyland.atlassian.net/browse/NXBT-3615): Fix potential AccessDeniedException in Git#setupCredentials
-  - [NEV-717](https://hyland.atlassian.net/browse/NEV-717): Allow getting the latest Git tag from a remote repository
-  - [NEV-717](https://hyland.atlassian.net/browse/NEV-717): Allow getting some ConfigMap data
-  - [NEV-719](https://hyland.atlassian.net/browse/NEV-719): Allow downloading GitHub Actions workflow run artifacts
-  - ...
-""".stripIndent()
-
-
-def committers = '<at>Antoine Taillefer</at>'
+def jiraUrl = nxJira.getServerBrowseURL()
+def changeset = []
+def committers = []
 
 pipeline {
   agent any
@@ -164,35 +183,28 @@ pipeline {
           sh 'env'
           for (changeLogSet in currentBuild.changeSets) {
             def repositoryBrowser = changeLogSet.getBrowser()
-            for (entry in changeLogSet.getItems()){
-              echo "changeSetLink = ${repositoryBrowser.getChangeSetLink(entry)}"
-              echo "comment = ${entry.getComment()}"
-              echo "authorName = ${entry.getAuthorName()}"
-              echo "authorEmail = ${entry.getAuthorEmail()}"
-              def author = entry.getAuthor()
-              echo "author = ${author}"
+            for (item in changeLogSet.getItems()){
+              def changeSetLink = repositoryBrowser.getChangeSetLink(item)
 
-              echo "authorId = ${author.getId()}"
-              echo "authorDisplayName = ${author.getDisplayName()}"
-              echo "authorFullName = ${author.getFullName()}"
+              changeset.add(getChange(item.getComment()))
+              committers.add(item.getAuthorName())
             }
           }
-
         }
       }
     }
   }
-  // post {
-  //   success {
-      // send(
-      //   title: "Build success: nuxeo/nuxeo-lts #${BUILD_NUMBER}",
-      //   description: currentBuild.description,
-      //   icon: 'CheckmarkCircle',
-      //   iconColor: 'good',
-      //   message: "Successfully built nuxeo-lts on branch ${GIT_BRANCH}",
-      //   changeset: changeset,
-      //   committers: committers
-      // )
+  post {
+    success {
+      send(
+        title: "Build success: nuxeo/nuxeo-lts #${BUILD_NUMBER}",
+        description: currentBuild.description,
+        icon: 'CheckmarkCircle',
+        iconColor: 'good',
+        message: "Successfully built nuxeo-lts on branch ${GIT_BRANCH}",
+        changeset: changeset,
+        committers: committers
+      )
       // send(
       //   title: "Release LTS 2021.69",
       //   icon: 'CheckmarkCircle',
@@ -214,6 +226,6 @@ pipeline {
       //   iconColor: 'attention',
       //   message: "Failed to release Nuxeo 2021.60 from build 2021.60.7"
       // )
-  //   }
-  // }
+    }
+  }
 }
