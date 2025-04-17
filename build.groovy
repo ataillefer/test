@@ -163,46 +163,51 @@ pipeline {
           currentBuild.description = 'Build 2025.1.14'
 
           for (changeLogSet in currentBuild.changeSets) {
+            def repositoryBrowser = changeLogSet.getBrowser()
             for (entry in changeLogSet.getItems()){
-              echo "entry = ${entry}"
+              echo "changeSetLink = ${repositoryBrowser.getChangeSetLink(entry)}"
+              echo "comment = ${entry.getComment()}"
+              echo "author = ${entry.getAuthor()}"
+              echo "authorName = ${entry.getAuthorName()}"
             }
           }
+
         }
       }
     }
   }
-  post {
-    success {
-      send(
-        title: "Build success: nuxeo/nuxeo-lts #${BUILD_NUMBER}",
-        description: currentBuild.description,
-        icon: 'CheckmarkCircle',
-        iconColor: 'good',
-        message: "Successfully built nuxeo-lts on branch ${GIT_BRANCH}",
-        changeset: changeset,
-        committers: committers
-      )
+  // post {
+  //   success {
+      // send(
+      //   title: "Build success: nuxeo/nuxeo-lts #${BUILD_NUMBER}",
+      //   description: currentBuild.description,
+      //   icon: 'CheckmarkCircle',
+      //   iconColor: 'good',
+      //   message: "Successfully built nuxeo-lts on branch ${GIT_BRANCH}",
+      //   changeset: changeset,
+      //   committers: committers
+      // )
       // send(
       //   title: "Release LTS 2021.69",
       //   icon: 'CheckmarkCircle',
       //   iconColor: 'good',
       //   message: "LTS 2021.69 and 2021-HF69 are released and online."
       // )
-      send(
-        title: "Build failure: nuxeo/nuxeo-lts #${BUILD_NUMBER}",
-        description: currentBuild.description,
-        icon: 'ErrorCircle',
-        iconColor: 'attention',
-        message: "Failed to build nuxeo-lts on branch ${GIT_BRANCH}",
-        changeset: changeset,
-        committers: committers
-      )
+      // send(
+      //   title: "Build failure: nuxeo/nuxeo-lts #${BUILD_NUMBER}",
+      //   description: currentBuild.description,
+      //   icon: 'ErrorCircle',
+      //   iconColor: 'attention',
+      //   message: "Failed to build nuxeo-lts on branch ${GIT_BRANCH}",
+      //   changeset: changeset,
+      //   committers: committers
+      // )
       // send(
       //   title: "Release LTS 2021.60",
       //   icon: 'ErrorCircle',
       //   iconColor: 'attention',
       //   message: "Failed to release Nuxeo 2021.60 from build 2021.60.7"
       // )
-    }
-  }
+  //   }
+  // }
 }
