@@ -2,6 +2,38 @@ library identifier: "platform-ci-shared-library@v0.0.53"
 
 JIRA_URL = nxJira.getServerBrowseURL()
 
+TEAMS_CHANNEL_IDS = [
+  'Connectors': '19:e3ffdf6fcdfc45a4b5727be1672d328c@thread.tacv2',
+  'Platform': '19:817f8655db3745389cb64b4f4db5cc18@thread.tacv2',
+]
+
+def getJobView() {
+  def parentItems = currentBuild.fullProjectName.split('/').collect {
+    projectName -> Jenkins.instance.getItem(projectName)
+  }.findAll {
+    item -> item != null
+  }
+  def views = Jenkins.instance.views.findAll {
+      view -> view.displayName != 'All'
+  }
+  for (item in parentItems) {
+    for (view in views) {
+      if (view.contains(item)) {
+          def viewName = view.displayName
+          // nxUtils.log(message: "View: ${viewName} contains job: ${item.displayName}")
+          return viewName
+          break
+      }
+    }
+  }
+  return null
+}
+
+def getChannelId() {
+  def view = getJobView()
+  return TEAMS_CHANNEL_IDS[view] ?: TEAMS_CHANNEL_IDS['Platform']
+}
+
 def getChange(commitMessage) {
   def parts = commitMessage.split(':', 2)
   if (parts.size() > 1) {
@@ -23,7 +55,7 @@ def getUserEmail(fullName) {
 }
 
 def send(Map args = [:]) {
-    def channelId = args.channelId ?: '19:817f8655db3745389cb64b4f4db5cc18@thread.tacv2'
+    def channelId = args.channelId ?: getChannelId()
     def title = args.title // required
     def description = args.description
     def icon = args.icon
@@ -109,7 +141,7 @@ def send(Map args = [:]) {
 
     if (changes) {
       def text = changes.collect {
-        change -> "\\n- ${change}"
+        change -> "\n- ${change}"
       }.join('')
       body.add([
         'type': 'TextBlock',
@@ -189,16 +221,17 @@ pipeline {
       steps {
         echo 'Hello World'
         script {
+          echo "channelId = ${getChannelId()}"
           currentBuild.description = 'Build 2025.1.14'
           for (changeLogSet in currentBuild.changeSets) {
-            def repositoryBrowser = changeLogSet.getBrowser()
-            for (item in changeLogSet.getItems()){
+            def repositoryBrowser = changeLogSet.browser
+            for (item in changeLogSet.items){
               def link = repositoryBrowser.getChangeSetLink(item).toString()
               echo "link = ${link}"
               echo "GIT_URL = ${GIT_URL}"
               if (repositoryBrowser.getChangeSetLink(item).toString().startsWith(GIT_URL)) {
-                changes.add(getChange(item.getComment().trim()))
-                committers.add(item.getAuthorName())
+                changes.add(getChange(item.comment.trim()))
+                committers.add(item.authorName)
               }
             }
           }
@@ -206,17 +239,17 @@ pipeline {
       }
     }
   }
-  post {
-    success {
-      send(
-        title: "Build success: nuxeo/nuxeo-lts #${BUILD_NUMBER}",
-        description: currentBuild.description,
-        icon: 'CheckmarkCircle',
-        iconColor: 'good',
-        message: "Successfully built nuxeo-lts on branch ${GIT_BRANCH}",
-        changes: changes,
-        committers: committers
-      )
+  // post {
+  //   success {
+      // send(
+      //   title: "Build success: nuxeo/nuxeo-lts #${BUILD_NUMBER}",
+      //   description: currentBuild.description,
+      //   icon: 'CheckmarkCircle',
+      //   iconColor: 'good',
+      //   message: "Successfully built nuxeo-lts on branch ${GIT_BRANCH}",
+      //   changes: changes,
+      //   committers: committers
+      // )
       // send(
       //   title: "Release LTS 2021.69",
       //   icon: 'CheckmarkCircle',
@@ -238,6 +271,6 @@ pipeline {
       //   iconColor: 'attention',
       //   message: "Failed to release Nuxeo 2021.60 from build 2021.60.7"
       // )
-    }
-  }
+  //   }
+  // }
 }
