@@ -208,7 +208,6 @@ def send(Map args = [:]) {
         requestBody: payload
       )
     }
-    
 }
 
 def changes = []
@@ -239,42 +238,36 @@ pipeline {
   }
   post {
     success {
-      // send(
-      //   title: "Build success: nuxeo/nuxeo-lts #${BUILD_NUMBER}",
-      //   description: currentBuild.description,
-      //   icon: 'CheckmarkCircle',
-      //   iconColor: 'good',
-      //   message: "Successfully built nuxeo-lts on branch ${GIT_BRANCH}",
-      //   changes: changes,
-      //   committers: committers
-      // )
       send(
-        title: "Test notification",
+        title: "Build success: nuxeo/nuxeo-lts #${BUILD_NUMBER}",
+        description: currentBuild.description,
         icon: 'CheckmarkCircle',
         iconColor: 'good',
-        message: "Some message Some message Some message Some message Some message Some message Some message Some message Some message Some message Some message Some message Some message "
+        message: "Successfully built nuxeo-lts on branch ${GIT_BRANCH}",
+        changes: changes,
+        committers: committers
       )
-      // send(
-      //   title: "Release LTS 2021.69",
-      //   icon: 'CheckmarkCircle',
-      //   iconColor: 'good',
-      //   message: "LTS 2021.69 and 2021-HF69 are released and online."
-      // )
-      // send(
-      //   title: "Build failure: nuxeo/nuxeo-lts #${BUILD_NUMBER}",
-      //   description: currentBuild.description,
-      //   icon: 'ErrorCircle',
-      //   iconColor: 'attention',
-      //   message: "Failed to build nuxeo-lts on branch ${GIT_BRANCH}",
-      //   changes: changes,
-      //   committers: committers
-      // )
-      // send(
-      //   title: "Release LTS 2021.60",
-      //   icon: 'ErrorCircle',
-      //   iconColor: 'attention',
-      //   message: "Failed to release Nuxeo 2021.60 from build 2021.60.7"
-      // )
+      send(
+        title: "Release LTS 2021.69",
+        icon: 'CheckmarkCircle',
+        iconColor: 'good',
+        message: "LTS 2021.69 and 2021-HF69 are released and online."
+      )
+      send(
+        title: "Build failure: nuxeo/nuxeo-lts #${BUILD_NUMBER}",
+        description: currentBuild.description,
+        icon: 'ErrorCircle',
+        iconColor: 'attention',
+        message: "Failed to build nuxeo-lts on branch ${GIT_BRANCH}",
+        changes: changes,
+        committers: committers
+      )
+      send(
+        title: "Release LTS 2021.60",
+        icon: 'ErrorCircle',
+        iconColor: 'attention',
+        message: "Failed to release Nuxeo 2021.60 from build 2021.60.7"
+      )
     }
   }
 }
