@@ -110,7 +110,7 @@ def send(Map args = [:]) {
     if (changes) {
       def text = changes.collect {
         change -> "\\n- ${change}"
-      }.join()
+      }.join('')
       body.add([
         'type': 'TextBlock',
         'text': "**Changes:** ${text}",
