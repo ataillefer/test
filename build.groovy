@@ -108,8 +108,7 @@ def send(Map args = [:]) {
     }
 
     if (changeset) {
-      // def text = changeset.join('\\n- ')
-      def text = changeset
+      def text = changeset.join('\n- ')
       body.add([
         'type': 'TextBlock',
         'text': "**Changes:** ${text}",
@@ -121,17 +120,22 @@ def send(Map args = [:]) {
     if (committers) {
       def entities = []
       def atCommitters = []
-      committers.unique().each { committer ->
-        def atCommitter = "<at>${committer}</at>"
+      committers.unique().collect { committer -> [
+        'name': committer,
+        'at': "<at>${committer}</at>",
+        'email': getUserEmail(committer)
+      ]}.findAll { committer ->
+        committer['email'] != null
+      }.each { committer ->
         entities.add([
           'type': 'mention',
-          'text': atCommitter,
+          'text': committer['at'],
           'mentioned': [
-            'id': getUserEmail(committer),
-            'name': committer
+            'id': committer['email'],
+            'name': committer['name']
           ]
         ])
-        atCommitters.add(atCommitter)
+        atCommitters.add(committer['at'])
       }
       content['msTeams']['entities'] = entities
       def text = atCommitters.join(', ')
@@ -188,16 +192,20 @@ pipeline {
             def repositoryBrowser = changeLogSet.getBrowser()
             for (item in changeLogSet.getItems()){
               if (repositoryBrowser.getChangeSetLink(item).toString().startsWith(GIT_URL)) {
-                changeset.add(getChange(item.getComment()))
+                def comment = item.getComment()
+                echo "comment = ${comment}"
+                def change = getChange(item.getComment())
+                echo "change = ${change}"
+                changeset.add(change)
                 committers.add(item.getAuthorName())
               }
             }
           }
-          changeset = """
-          - channge
-          - [NXP-33088](https://hyland.atlassian.net/browse/NXP-33088): bla bla bla
-          - joe
-          """.stripIndent()
+          // changeset = """
+          // - channge
+          // - [NXP-33088](https://hyland.atlassian.net/browse/NXP-33088): bla bla bla
+          // - joe
+          // """.stripIndent()
         }
       }
     }
