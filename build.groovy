@@ -31,6 +31,7 @@ def getJobView() {
 
 def getChannelId() {
   def view = getJobView()
+  echo "view = ${view}"
   return TEAMS_CHANNEL_IDS[view] ?: TEAMS_CHANNEL_IDS['Platform']
 }
 
@@ -239,17 +240,17 @@ pipeline {
       }
     }
   }
-  // post {
-  //   success {
-      // send(
-      //   title: "Build success: nuxeo/nuxeo-lts #${BUILD_NUMBER}",
-      //   description: currentBuild.description,
-      //   icon: 'CheckmarkCircle',
-      //   iconColor: 'good',
-      //   message: "Successfully built nuxeo-lts on branch ${GIT_BRANCH}",
-      //   changes: changes,
-      //   committers: committers
-      // )
+  post {
+    success {
+      send(
+        title: "Build success: nuxeo/nuxeo-lts #${BUILD_NUMBER}",
+        description: currentBuild.description,
+        icon: 'CheckmarkCircle',
+        iconColor: 'good',
+        message: "Successfully built nuxeo-lts on branch ${GIT_BRANCH}",
+        changes: changes,
+        committers: committers
+      )
       // send(
       //   title: "Release LTS 2021.69",
       //   icon: 'CheckmarkCircle',
@@ -271,6 +272,6 @@ pipeline {
       //   iconColor: 'attention',
       //   message: "Failed to release Nuxeo 2021.60 from build 2021.60.7"
       // )
-  //   }
-  // }
+    }
+  }
 }
