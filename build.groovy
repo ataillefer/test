@@ -108,7 +108,8 @@ def send(Map args = [:]) {
     }
 
     if (changeset) {
-      def text = changeset.join('\\n- ')
+      // def text = changeset.join('\\n- ')
+      def text = changeset
       body.add([
         'type': 'TextBlock',
         'text': "**Changes:** ${text}",
@@ -120,7 +121,7 @@ def send(Map args = [:]) {
     if (committers) {
       def entities = []
       def atCommitters = []
-      committers.each { committer ->
+      committers.unique().each { committer ->
         def atCommitter = "<at>${committer}</at>"
         entities.add([
           'type': 'mention',
@@ -192,6 +193,11 @@ pipeline {
               }
             }
           }
+          changeset = """
+          - channge
+          - [NXP-33088](https://hyland.atlassian.net/browse/NXP-33088): bla bla bla
+          - joe
+          """.stripIndent()
         }
       }
     }
