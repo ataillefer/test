@@ -29,7 +29,7 @@ def send(Map args = [:]) {
     def icon = args.icon
     def iconColor = args.iconColor ?: 'default'
     def message = args.message
-    def changeset = args.changeset
+    def changes = args.changes
     def committers = args.committers
     // to not display any actions, pass an empty list
     def actions = args.actions == null ? [
@@ -107,8 +107,10 @@ def send(Map args = [:]) {
       ])
     }
 
-    if (changeset) {
-      def text = changeset.join('\n- ')
+    if (changes) {
+      def text = changes.collect {
+        change -> "\\n- ${change}"
+      }.join()
       body.add([
         'type': 'TextBlock',
         'text': "**Changes:** ${text}",
@@ -177,7 +179,7 @@ def send(Map args = [:]) {
     
 }
 
-def changeset = []
+def changes = []
 def committers = []
 
 pipeline {
@@ -191,21 +193,15 @@ pipeline {
           for (changeLogSet in currentBuild.changeSets) {
             def repositoryBrowser = changeLogSet.getBrowser()
             for (item in changeLogSet.getItems()){
+              def link = repositoryBrowser.getChangeSetLink(item).toString()
+              echo "link = ${link}"
+              echo "GIT_URL = ${GIT_URL}"
               if (repositoryBrowser.getChangeSetLink(item).toString().startsWith(GIT_URL)) {
-                def comment = item.getComment()
-                echo "comment = ${comment}"
-                def change = getChange(item.getComment())
-                echo "change = ${change}"
-                changeset.add(change)
+                changes.add(getChange(item.getComment().trim()))
                 committers.add(item.getAuthorName())
               }
             }
           }
-          // changeset = """
-          // - channge
-          // - [NXP-33088](https://hyland.atlassian.net/browse/NXP-33088): bla bla bla
-          // - joe
-          // """.stripIndent()
         }
       }
     }
@@ -218,7 +214,7 @@ pipeline {
         icon: 'CheckmarkCircle',
         iconColor: 'good',
         message: "Successfully built nuxeo-lts on branch ${GIT_BRANCH}",
-        changeset: changeset,
+        changes: changes,
         committers: committers
       )
       // send(
@@ -233,7 +229,7 @@ pipeline {
       //   icon: 'ErrorCircle',
       //   iconColor: 'attention',
       //   message: "Failed to build nuxeo-lts on branch ${GIT_BRANCH}",
-      //   changeset: changeset,
+      //   changes: changes,
       //   committers: committers
       // )
       // send(
