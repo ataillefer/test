@@ -31,7 +31,6 @@ def getJobView() {
 
 def getChannelId() {
   def view = getJobView()
-  echo "view = ${view}"
   return TEAMS_CHANNEL_IDS[view] ?: TEAMS_CHANNEL_IDS['Platform']
 }
 
@@ -228,8 +227,6 @@ pipeline {
             def repositoryBrowser = changeLogSet.browser
             for (item in changeLogSet.items){
               def link = repositoryBrowser.getChangeSetLink(item).toString()
-              echo "link = ${link}"
-              echo "GIT_URL = ${GIT_URL}"
               if (repositoryBrowser.getChangeSetLink(item).toString().startsWith(GIT_URL)) {
                 changes.add(getChange(item.comment.trim()))
                 committers.add(item.authorName)
@@ -242,14 +239,20 @@ pipeline {
   }
   post {
     success {
+      // send(
+      //   title: "Build success: nuxeo/nuxeo-lts #${BUILD_NUMBER}",
+      //   description: currentBuild.description,
+      //   icon: 'CheckmarkCircle',
+      //   iconColor: 'good',
+      //   message: "Successfully built nuxeo-lts on branch ${GIT_BRANCH}",
+      //   changes: changes,
+      //   committers: committers
+      // )
       send(
-        title: "Build success: nuxeo/nuxeo-lts #${BUILD_NUMBER}",
-        description: currentBuild.description,
+        title: "Test notification",
         icon: 'CheckmarkCircle',
         iconColor: 'good',
-        message: "Successfully built nuxeo-lts on branch ${GIT_BRANCH}",
-        changes: changes,
-        committers: committers
+        message: "Some message Some message Some message Some message Some message Some message Some message Some message Some message Some message Some message Some message Some message "
       )
       // send(
       //   title: "Release LTS 2021.69",
