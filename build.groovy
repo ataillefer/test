@@ -6,19 +6,11 @@ def getJobView() {
   }.findAll {
     item -> item != null
   }
-  def views = Jenkins.instance.views.findAll {
-      view -> view.displayName != 'All'
-  }
   for (item in parents) {
     echo "item = ${item}"
-    for (view in views) {
-      if (view.contains(item)) {
-          def viewName = view.displayName
-          echo "View: ${viewName} contains job: ${item.displayName}"
-          return viewName
-      }
-    }
   }
+  echo "currentBuild.fullProjectName = ${currentBuild.fullProjectName}"
+  echo "getItemByFullName = ${Jenkins.instance.getItemByFullName(currentBuild.fullProjectName)}"
   return null
 }
 
