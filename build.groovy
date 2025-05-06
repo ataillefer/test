@@ -1,17 +1,38 @@
 library identifier: "platform-ci-shared-library@v0.0.53"
 
+import org.jenkinsci.plugins.workflow.multibranch.WorkflowMultiBranchProject
+
 def getJobView() {
-  def parents = currentBuild.fullProjectName.split('/').collect {
-    name -> Jenkins.instance.getItem(name)
-  }.findAll {
-    item -> item != null
+  def topLevelProject = currentBuild.fullProjectName.split('/', 2)[0]
+  echo "topLevelProject = ${topLevelProject}"
+  if (topLevelProject) {
+    def topLevelItem = Jenkins.instance.getItem(topLevelProject)
+    if (topLevelItem) {
+      echo "topLevelItem = ${topLevelItem}"
+      def views = Jenkins.instance.views.findAll {
+        view -> view.displayName != 'All'
+      }.each { view ->
+        if (view.contains(topLevelItem)) {
+          def viewName = view.displayName
+          echo "View: ${viewName} contains job: ${topLevelItem.displayName}"
+          return viewName
+        }
+      }
+    }
   }
-  for (item in parents) {
-    echo "item = ${item}"
-  }
-  echo "currentBuild.fullProjectName = ${currentBuild.fullProjectName}"
-  echo "getItemByFullName = ${Jenkins.instance.getItemByFullName(currentBuild.fullProjectName)}"
   return null
+}
+
+def getJobName() {
+  def currentJob = Jenkins.instance.getItemByFullName(currentBuild.fullProjectName)
+  echo "currentJob = ${currentJob}"
+  if (currentJob instanceof WorkflowMultiBranchProject) {
+    echo "is multibranch"
+    echo "currentJob.parent.displayName=${currentJob.parent.displayName}"
+  } else {
+    echo "regular"
+    echo "currentJob.displayName=${currentJob.displayName}"
+  }
 }
 
 pipeline {
@@ -22,6 +43,7 @@ pipeline {
         echo 'Hello World'
         script {
           getJobView()
+          getJobName()
         }
       }
     }
