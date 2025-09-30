@@ -4,7 +4,7 @@ library identifier: "platform-ci-shared-library@v0.0.53"
 pipeline {
   agent any
   options {
-    disableConcurrentBuilds(abortPrevious: true)
+    disableConcurrentBuilds()
   }
   stages {
     stage('Hello') {
